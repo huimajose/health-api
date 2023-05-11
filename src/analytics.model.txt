@@ -1,0 +1,33 @@
+import { Document, Schema, model } from 'mongoose';
+
+interface IAllergy {
+  allergy: string;
+  type: string;
+  developed: number[];
+  outgrown: number[];
+}
+
+interface ICity {
+  city: string;
+  population: number;
+  allergies: IAllergy[];
+}
+
+interface ICityModel extends ICity, Document {}
+
+const allergySchema = new Schema<IAllergy>({
+  allergy: String,
+  type: String,
+  developed: [Number],
+  outgrown: [Number],
+});
+
+const citySchema = new Schema<ICity>({
+  city: String,
+  population: Number,
+  allergies: [allergySchema],
+});
+
+const City = model<ICityModel>('City', citySchema);
+
+export default City;

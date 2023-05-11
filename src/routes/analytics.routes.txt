@@ -1,0 +1,100 @@
+// External Dependencies
+import express, { Request, Response } from "express";
+import { ObjectId } from "mongodb";
+import { collections } from "../services/database.service";
+import City from "../models/city";
+import * as datalake from '../services/datalake'
+// Global Config
+
+export const analyticsRouter = express.Router();
+
+analyticsRouter.use(express.json());
+
+
+//GET ALL DOCUMENTS
+analyticsRouter.get("/", async (_req: Request, res: Response) => {
+
+    try {
+        const cidade = (await collections.City.find({}).toArray()) as Cidade[];
+ 
+         res.status(200).send(cidade);
+     } catch (error) {
+         res.status(500).send(error.message);
+     }
+
+})
+
+
+
+
+
+analyticsRouter.get("/:id", async (req: Request, res: Response) => {
+    const id = req?.params?.id;
+
+    try {
+        
+        const query = { _id: new ObjectId(id) };
+        const cidade = (await collections.City.findOne(query)) as Cidade;
+
+        if (cidade) {
+            res.status(200).send(cidade);
+        }
+    } catch (error) {
+        res.status(404).send(`Unable to find matching document with id: ${req.params.id}`);
+    }
+});
+
+// POST
+analyticsRouter.post("/", async (req: Request, res: Response) => {
+    try {
+        const newGame = req.body as Cidade;
+        const result = await collections.City.insertOne(newGame);
+
+        result
+            ? res.status(201).send(`Successfully created a new game with id ${result.insertedId}`)
+            : res.status(500).send("Failed to create a new game.");
+    } catch (error) {
+        console.error(error);
+        res.status(400).send(error.message);
+    }
+});
+
+// PUT
+analyticsRouter.put("/:id", async (req: Request, res: Response) => {
+    const id = req?.params?.id;
+
+    try {
+        const updatedGame: City = req.body as City;
+        const query = { _id: new ObjectId(id) };
+      
+        const result = await collections.City.updateOne(query, { $set: updatedGame });
+
+        result
+            ? res.status(200).send(`Successfully updated game with id ${id}`)
+            : res.status(304).send(`Game with id: ${id} not updated`);
+    } catch (error) {
+        console.error(error.message);
+        res.status(400).send(error.message);
+    }
+});
+
+// DELETE
+analyticsRouter.delete("/:id", async (req: Request, res: Response) => {
+    const id = req?.params?.id;
+
+    try {
+        const query = { _id: new ObjectId(id) };
+        const result = await collections.City.deleteOne(query);
+
+        if (result && result.deletedCount) {
+            res.status(202).send(`Successfully removed game with id ${id}`);
+        } else if (!result) {
+            res.status(400).send(`Failed to remove game with id ${id}`);
+        } else if (!result.deletedCount) {
+            res.status(404).send(`Game with id ${id} does not exist`);
+        }
+    } catch (error) {
+        console.error(error.message);
+        res.status(400).send(error.message);
+    }
+});

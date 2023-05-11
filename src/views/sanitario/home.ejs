@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Situação sanitária de - Angola</title>
+</head>
+<body>
+    <h1>Lista das Cidades</h1>
+    <ul>
+        <% for(let cidade of cidades) { %>
+            <li><%= cidade.properties.provincia %>, <%= cidade.capital %>, Population: <%= cidade.population %></li>
+        <% } %>
+    </ul>
+</body>
+</html>
